@@ -2,6 +2,7 @@
 #include "../inc/TcpServer.hpp" 
 #include <iostream>
 #include <sstream>
+
 //#include <unistd.h>
 
 const int BUFFER_SIZE = 30720;
@@ -113,7 +114,13 @@ namespace Http {
         }
     }
 
-    void TcpServer::acceptConnection(SOCKET &new_socket){
+    void TcpServer::acceptConnection(
+        #if _WIN32
+            SOCKET &new_socket
+        #elif __linux__
+            int &new_socket
+        #endif
+        ){
         new_socket = accept(server_socket, (sockaddr *)&socket_address,
             &socket_address_len
         );
@@ -164,9 +171,9 @@ namespace Http {
             log("Error sending response to client.");
         }
         #elif __linux__
-            bytesSent = write(m_new_socket, m_serverMessage.c_str(), m_serverMessage.size());
+            bytesSent = write(new_socket, server_msg.c_str(), server_msg.size());
 
-            if (bytesSent == m_serverMessage.size())
+            if (bytesSent == server_msg.size())
             {
                 log("------ Server Response sent to client ------\n\n");
             }

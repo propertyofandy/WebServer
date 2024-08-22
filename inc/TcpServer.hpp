@@ -8,6 +8,7 @@
 #if __linux__
     #include <sys/socket.h>
     #include <arpa/inet.h>
+    #include <unistd.h>
 #elif _WIN32
     #pragma comment(lib, "Ws2_32.lib")
     #pragma comment(lib, "windowscodecs.lib")
@@ -39,7 +40,12 @@ namespace Http{
         int startServer();
         void closeServer(); 
         
-        void acceptConnection(SOCKET &new_socket);
+        #if _WIN32
+            void acceptConnection(SOCKET &new_socket);
+        #elif __linux__
+            void acceptConnection(int &new_socket);
+        #endif
+
         void sendResponse();
         std::string buildResponse();
     };
